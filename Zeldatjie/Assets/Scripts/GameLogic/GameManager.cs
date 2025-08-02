@@ -10,11 +10,12 @@ namespace Zeldatjie.Gameplay
     {
         [SerializeField] private string _titleSceneName;
         [SerializeField] private List<SceneData> _battleScenes;
-        [SerializeField] private Player _player;
+        [SerializeField] public Player Player;
         public GameState CurrentGameState => _currentGameState;
         private GameState _currentGameState;
         
         private int _currentBattleIndex = 0;
+        private SceneData _previousSceneData = null;
         private SceneRootLogic _currentSceneRootLogic = null;
         private Coroutine _loadingScene = null;
 
@@ -38,9 +39,9 @@ namespace Zeldatjie.Gameplay
 
         private void Update()
         {
-            if (IsInGame && _player.IsAlive)
+            if (IsInGame && Player.IsAlive)
             {
-                _player.UpdatePlayer();
+                Player.UpdatePlayer();
             }
         }
 
@@ -56,6 +57,11 @@ namespace Zeldatjie.Gameplay
             {
                 SceneManager.UnloadSceneAsync(_titleSceneName);
             }
+
+            if (_previousSceneData != null)
+            {
+                SceneManager.UnloadSceneAsync(_previousSceneData.SceneName);
+            }
             
             _currentGameState = GameState.None;
             
@@ -65,6 +71,7 @@ namespace Zeldatjie.Gameplay
             }
             _loadingScene = StartCoroutine(LoadAndFind(_battleScenes[_currentBattleIndex].SceneName, () =>
             {
+                _previousSceneData = _battleScenes[_currentBattleIndex];
                 _currentGameState = GameState.Fight;
                 _currentBattleIndex++;
                 _currentSceneRootLogic.SetToFightMode();

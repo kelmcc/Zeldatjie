@@ -5,20 +5,21 @@ namespace Zeldatjie.Gameplay
 {
     public class SceneRootLogic : MonoBehaviour
     {
-        [SerializeField] private BaseEnemy _enemy;
+        [SerializeField] private BattleLogic _battleLogic;
         [SerializeField] private LootingLogic _lootLogic;
         [SerializeField] private ExploreLogic _exploreLogic;
         private System<GameManager> _gameManager;
         
         private void Awake()
         {
+            _battleLogic.gameObject.SetActive(false);
             _lootLogic.gameObject.SetActive(false);
             _exploreLogic.gameObject.SetActive(false);
         }
 
         public void SetToFightMode()
         {
-            _enemy.LIVE();
+            _battleLogic.gameObject.SetActive(true);
         }
 
         public void SetToLootMode()
@@ -55,7 +56,7 @@ namespace Zeldatjie.Gameplay
 
         private void Update()
         {
-            if (!_enemy.IsAlive && _gameManager.Value.CurrentGameState == GameManager.GameState.Fight)
+            if (!_battleLogic.Enemy.IsAlive && _gameManager.Value.CurrentGameState == GameManager.GameState.Fight)
             {
                 _gameManager.Value.SetState(GameManager.GameState.Loot);
                 SetToLootMode();
