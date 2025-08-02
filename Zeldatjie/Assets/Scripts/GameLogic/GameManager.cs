@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -9,11 +10,14 @@ namespace Zeldatjie.Gameplay
     {
         [SerializeField] private string _titleSceneName;
         [SerializeField] private List<SceneData> _battleScenes;
-        [SerializeField] private Player _player;
+        [SerializeField] public Player Player;
         public GameState CurrentGameState => _currentGameState;
         private GameState _currentGameState;
         
         private int _currentBattleIndex = 0;
+        private SceneData _previousSceneData = null;
+        private SceneRootLogic _currentSceneRootLogic = null;
+        private Coroutine _loadingScene = null;
 
         public enum GameState
         {
@@ -25,6 +29,8 @@ namespace Zeldatjie.Gameplay
             Lose,
             Win
         }
+        
+        bool IsInGame => _currentGameState == GameState.Fight || _currentGameState == GameState.Loot || _currentGameState == GameState.Explore;
 
         private void Awake()
         {
@@ -33,27 +39,66 @@ namespace Zeldatjie.Gameplay
 
         private void Update()
         {
-            
-            
+            if (IsInGame && Player.IsAlive)
+            {
+                Player.UpdatePlayer();
+            }
         }
 
-        public void LoadTitle()
+        private void LoadTitle()
         {
-            // Load in the title scene
             SceneManager.LoadScene(_titleSceneName, LoadSceneMode.Additive);
             _currentGameState = GameState.Title;
-
         }
         
         public void EnterNextBattle()
         {
-            SceneManager.UnloadSceneAsync(_titleSceneName);
-            
-            SceneManager.LoadScene(_battleScenes[_currentBattleIndex].SceneName, LoadSceneMode.Additive);
-            _currentGameState = GameState.Fight;
+            if (_currentGameState == GameState.Title)
+            {
+                SceneManager.UnloadSceneAsync(_titleSceneName);
+            }
 
+            if (_previousSceneData != null)
+            {
+                SceneManager.UnloadSceneAsync(_previousSceneData.SceneName);
+            }
+            
+            _currentGameState = GameState.None;
+            
+            if (_loadingScene != null)
+            {
+                StopCoroutine(_loadingScene);
+            }
+            _loadingScene = StartCoroutine(LoadAndFind(_battleScenes[_currentBattleIndex].SceneName, () =>
+            {
+                _previousSceneData = _battleScenes[_currentBattleIndex];
+                _currentGameState = GameState.Fight;
+                _currentBattleIndex++;
+                _currentSceneRootLogic.SetToFightMode();
+            }));
         }
         
-        
+        private IEnumerator LoadAndFind(string targetSceneName, Action onComplete)
+        {
+            AsyncOperation op = SceneManager.LoadSceneAsync(targetSceneName, LoadSceneMode.Additive);
+            yield return new WaitUntil(() => op.isDone);
+
+            Scene targetScene = SceneManager.GetSceneByName(targetSceneName);
+            if (targetScene.isLoaded)
+            {
+                GameObject[] rootObjects = targetScene.GetRootGameObjects();
+                _currentSceneRootLogic = rootObjects[0].GetComponent<SceneRootLogic>();
+                if (_currentSceneRootLogic == null)
+                {
+                    Debug.LogError("SceneRootLogic not found, make sure its on the first root object");
+                }
+                onComplete?.Invoke();
+            }
+        }
+
+        public void SetState(GameState gameState)
+        {
+            _currentGameState = gameState;
+        }
     }
 }
