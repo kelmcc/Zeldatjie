@@ -45,18 +45,21 @@ namespace Zeldatjie.Gameplay
             }
         }
 
-        public void LoadTitle()
+        private void LoadTitle()
         {
-            // Load in the title scene
             SceneManager.LoadScene(_titleSceneName, LoadSceneMode.Additive);
             _currentGameState = GameState.Title;
-
         }
         
         public void EnterNextBattle()
         {
-            SceneManager.UnloadSceneAsync(_titleSceneName);
+            if (_currentGameState == GameState.Title)
+            {
+                SceneManager.UnloadSceneAsync(_titleSceneName);
+            }
+            
             _currentGameState = GameState.None;
+            
             if (_loadingScene != null)
             {
                 StopCoroutine(_loadingScene);
@@ -64,6 +67,8 @@ namespace Zeldatjie.Gameplay
             _loadingScene = StartCoroutine(LoadAndFind(_battleScenes[_currentBattleIndex].SceneName, () =>
             {
                 _currentGameState = GameState.Fight;
+                _currentBattleIndex++;
+                _currentSceneRootLogic.SetToFightMode();
             }));
         }
         
