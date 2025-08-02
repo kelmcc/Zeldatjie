@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace Zeldatjie.Gameplay
@@ -7,16 +8,10 @@ namespace Zeldatjie.Gameplay
         [SerializeField] private TwoOptionBehaviour _twoOptionBehaviour;
         private System<GameManager> _gameManager;
         
-        private void Init()
+        public void Init(Action leftSelection, Action rightSelection)
         {
-            _twoOptionBehaviour.LeftAction = () =>
-            {
-                Debug.Log("Left action");
-            };
-            _twoOptionBehaviour.RightAction = () =>
-            {
-                Debug.Log("Right action");
-            };
+            _twoOptionBehaviour.LeftAction += leftSelection;
+            _twoOptionBehaviour.RightAction += rightSelection;
         }
 
     }

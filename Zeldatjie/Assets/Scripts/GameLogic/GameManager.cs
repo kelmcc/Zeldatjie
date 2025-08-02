@@ -38,8 +38,7 @@ namespace Zeldatjie.Gameplay
 
         private void Update()
         {
-
-            if (IsInGame)
+            if (IsInGame && _player.IsAlive)
             {
                 _player.UpdatePlayer();
             }
@@ -72,7 +71,6 @@ namespace Zeldatjie.Gameplay
             }));
         }
         
-        
         private IEnumerator LoadAndFind(string targetSceneName, Action onComplete)
         {
             AsyncOperation op = SceneManager.LoadSceneAsync(targetSceneName, LoadSceneMode.Additive);
@@ -90,6 +88,10 @@ namespace Zeldatjie.Gameplay
                 onComplete?.Invoke();
             }
         }
-        
+
+        public void SetState(GameState gameState)
+        {
+            _currentGameState = gameState;
+        }
     }
 }
