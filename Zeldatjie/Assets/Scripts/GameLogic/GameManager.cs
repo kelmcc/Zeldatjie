@@ -15,6 +15,7 @@ namespace Zeldatjie.Gameplay
         private GameState _currentGameState;
         
         private int _currentBattleIndex = 0;
+        private SceneData _previousSceneData = null;
         private SceneRootLogic _currentSceneRootLogic = null;
         private Coroutine _loadingScene = null;
 
@@ -56,6 +57,11 @@ namespace Zeldatjie.Gameplay
             {
                 SceneManager.UnloadSceneAsync(_titleSceneName);
             }
+
+            if (_previousSceneData != null)
+            {
+                SceneManager.UnloadSceneAsync(_previousSceneData.SceneName);
+            }
             
             _currentGameState = GameState.None;
             
@@ -65,6 +71,7 @@ namespace Zeldatjie.Gameplay
             }
             _loadingScene = StartCoroutine(LoadAndFind(_battleScenes[_currentBattleIndex].SceneName, () =>
             {
+                _previousSceneData = _battleScenes[_currentBattleIndex];
                 _currentGameState = GameState.Fight;
                 _currentBattleIndex++;
                 _currentSceneRootLogic.SetToFightMode();

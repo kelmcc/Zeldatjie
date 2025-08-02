@@ -337,6 +337,7 @@ MonoBehaviour:
   _titleSceneName: Title
   _battleScenes:
   - {fileID: 11400000, guid: bb4da733665f74a92864b460d7a2da14, type: 2}
+  - {fileID: 11400000, guid: f0795d53db9744a7fa88a57f13a9509e, type: 2}
   Player: {fileID: 968333045868373030}
 --- !u!4 &1671572927
 Transform:
