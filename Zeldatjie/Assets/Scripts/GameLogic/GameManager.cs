@@ -10,7 +10,7 @@ namespace Zeldatjie.Gameplay
     {
         [SerializeField] private string _titleSceneName;
         [SerializeField] private List<SceneData> _battleScenes;
-        [SerializeField] private Player _player;
+        [SerializeField] public Player Player;
         public GameState CurrentGameState => _currentGameState;
         private GameState _currentGameState;
         
@@ -38,9 +38,9 @@ namespace Zeldatjie.Gameplay
 
         private void Update()
         {
-            if (IsInGame && _player.IsAlive)
+            if (IsInGame && Player.IsAlive)
             {
-                _player.UpdatePlayer();
+                Player.UpdatePlayer();
             }
         }
 
